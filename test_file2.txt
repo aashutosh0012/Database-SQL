@@ -1,0 +1,289 @@
+SET SERVEROUTPUT ON
+DECLARE
+  l_sql_tune_task_id  VARCHAR2(100);
+BEGIN
+  l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task (
+                          sql_id      => 'cjnvkrxz1nvwa',
+                          scope       => DBMS_SQLTUNE.scope_comprehensive,
+                          time_limit  => 600,
+                          task_name   => 'cjnvkrxz1nvwa_tuning_task1',
+                          description => 'Tuning task for statement cjnvkrxz1nvwa.');
+  DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id);
+END;
+/
+
+
+SELECT SNAP_ID FROM DBA_HIST_SQLSTAT
+WHERE SQL_ID='cjnvkrxz1nvwa'
+ORDER BY SNAP_ID;
+
+
+*
+ERROR at line 1:
+ORA-13780: SQL statement does not exist.
+ORA-06512: at "SYS.DBMS_SYS_ERROR", line 79
+ORA-06512: at "SYS.PRVT_SQLADV_INFRA", line 262
+ORA-06512: at "SYS.DBMS_SQLTUNE", line 754
+ORA-06512: at line 4
+
+
+SQL> SELECT SNAP_ID FROM DBA_HIST_SQLSTAT
+WHERE SQL_ID='cjnvkrxz1nvwa'
+ORDER BY SNAP_ID;  2    3
+
+   SNAP_ID
+----------
+     98054
+
+SQL>
+
+begin_snap => 12345, 
+end_snap => 12350,
+
+
+SET SERVEROUTPUT ON
+DECLARE
+  l_sql_tune_task_id  VARCHAR2(100);
+BEGIN
+  l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task (
+                          sql_id      => 'cjnvkrxz1nvwa',
+						  begin_snap => 98049,
+						  end_snap =>  98075,
+                          scope       => DBMS_SQLTUNE.scope_comprehensive,
+                          time_limit  => 6000,
+                          task_name   => 'cjnvkrxz1nvwa_tuning_task2',
+                          description => 'Tuning task for statement cjnvkrxz1nvwa.');
+  DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id);
+END;
+/
+
+2. Execute the tuning task:
+EXEC DBMS_SQLTUNE.execute_tuning_task(task_name => 'cjnvkrxz1nvwa_tuning_task2');
+
+
+3. Display the recommendations:
+	Once the tuning task has executed successfully the recommendations can be displayed using the REPORT_TUNING_TASK function.
+
+SET LONG 10000;
+SET PAGESIZE 1000
+SET LINESIZE 200
+SELECT DBMS_SQLTUNE.report_tuning_task('cjnvkrxz1nvwa_tuning_task1') AS recommendations FROM dual;
+SET PAGESIZE 24
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+  JAF.JAF_COMPANY_CTRL,
+  JAF.GOLD_ORDER,
+  JAF.HES_NA_ITEM,
+  JAD.JAD_CUSTOMER
+  
+  
+ 
+set lin 300
+col TABLE_NAME for a50 
+select table_name, LAST_ANALYZED from dba_tables where table_name in ('JAF_COMPANY_CTRL','GOLD_ORDER','HES_NA_ITEM','JAD_CUSTOMER');
+
+TABLE_NAME                                         LAST_ANALYZ
+-------------------------------------------------- -----------
+JAD_CUSTOMER                                       22-FEB-2021
+JAF_COMPANY_CTRL                                   20-FEB-2021
+GOLD_ORDER                                         22-FEB-2021
+HES_NA_ITEM                                        22-FEB-2021
+
+SQL>
+
+col TABLE_NAME for a30
+col PARTITION_NAME for a30
+col SUBPARTITION_NAME for a30
+
+select TABLE_NAME,PARTITION_NAME,SUBPARTITION_NAME,STATS_UPDATE_TIME from DBA_TAB_STATS_HISTORY where table_name in ('JAF_COMPANY_CTRL','GOLD_ORDER','HES_NA_ITEM','JAD_CUSTOMER');
+
+
+
+exec dbms_stats.gather_table_stats('JAF','JAF_COMPANY_CTRL',DEGREE =>32,CASCADE => TRUE);
+
+
+SQL> exec dbms_stats.gather_table_stats('JAF','JAF_COMPANY_CTRL',DEGREE =>32,CASCADE => TRUE);
+
+PL/SQL procedure successfully completed.
+
+SQL>
+
+SQL> SET SERVEROUTPUT ON
+DECLARE
+  l_sql_tune_task_id  VARCHAR2(100);
+BEGIN
+  l_sql_tune_task_id := DBMS_SQLTUNE.create_tuning_task (
+                          sql_id      => 'cjnvkrxz1nvwa',
+                                                  begin_snap => 98049,
+                                                  end_snap =>  98075,
+                          scope       => DBMS_SQLTUNE.scope_comprehensive,
+                          time_limit  => 600,
+                          task_name   => 'cjnvkrxz1nvwa_tuning_task1',
+                          description => 'Tuning task for statement cjnvkrxz1nvwa.');
+  DBMS_OUTPUT.put_line('l_sql_tune_task_id: ' || l_sql_tune_task_id);
+END;
+/SQL>   2    3    4    5    6    7    8    9   10   11   12   13   14
+l_sql_tune_task_id: cjnvkrxz1nvwa_tuning_task1
+
+PL/SQL procedure successfully completed.
+
+SQL> EXEC DBMS_SQLTUNE.execute_tuning_task(task_name => 'cjnvkrxz1nvwa_tuning_task1');
+
+PL/SQL procedure successfully completed.
+
+SQL>
+SQL> SET LONG 10000;
+SET PAGESIZE 1000
+SET LINESIZE 200
+SELECT DBMS_SQLTUNE.report_tuning_task('cjnvkrxz1nvwa_tuning_task1') AS recommendations FROM dual;SQL> SQL> SQL>
+
+RECOMMENDATIONS
+--------------------------------------------------------------------------------
+GENERAL INFORMATION SECTION
+-------------------------------------------------------------------------------
+Tuning Task Name   : cjnvkrxz1nvwa_tuning_task1
+Tuning Task Owner  : SYS
+Workload Type      : Single SQL Statement
+Scope              : COMPREHENSIVE
+Time Limit(seconds): 600
+Completion Status  : INTERRUPTED
+Started at         : 02/23/2021 02:12:17
+Completed at       : 02/23/2021 02:22:53
+
+-------------------------------------------------------------------------------
+Error: ORA-13639: The current operation was interrupted because it timed out.
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+Schema Name: SYS
+SQL ID     : cjnvkrxz1nvwa
+SQL Text   : SELECT
+               JAF.JAF_COMPANY_CTRL.COMPANY_CD,
+               JAF.GOLD_ORDER.GOLD_ORDER_ID,
+               JAF.GOLD_ORDER.GOLD_ORDER_ACT_TENDER_DT,
+               Sum(DECODE(JAF.HES_NA_ITEM.PKG_TYPE_CD, 'MP',
+             JAF.HES_NA_ITEM.UNIT_PER_PACK_QTY *
+             JAF.GOLD_ORDER.GOLD_LINE_SHIPPED_QTY,
+             JAF.GOLD_ORDER.GOLD_LINE_SHIPPED_QTY)),
+               JAD.JAD_CUSTOMER.CUSTOMER_CD
+             FROM
+               JAF.JAF_COMPANY_CTRL,
+               JAF.GOLD_ORDER,
+               JAF.HES_NA_ITEM,
+               JAD.JAD_CUSTOMER
+             WHERE
+               ( JAF.JAF_COMPANY_CTRL.COMPANY_CD=JAF.GOLD_ORDER.COMPANY_CD  )
+               AND  ( JAF.GOLD_ORDER.COMPANY_CD=JAD.JAD_CUSTOMER.COMPANY_CD
+             and JAF.GOLD_ORDER.GOLD_CUSTOMER_CD=JAD.JAD_CUSTOMER.CUSTOMER_CD
+              )
+               AND  ( JAF.HES_NA_ITEM.COMPANY_CD=JAF.GOLD_ORDER.COMPANY_CD
+             and JAF.HES_NA_ITEM.ITEM_ID=JAF.GOLD_ORDER.ITEM_ID and
+             JAF.HES_NA_ITEM.CIR_CD=JAF.GOLD_ORDER.CIR_CD  )
+               AND
+               (
+                JAF.JAF_COMPANY_CTRL.COMPANY_CD  IN  ( '13'  )
+                AND
+                ( JAF.GOLD_ORDER.GOLD_ORDER_STATUS_NBR = 1000  AND
+             JAF.GOLD_ORDER.GOLD_LINE_SHIPPED_QTY != 0  )
+                AND
+                JAF.GOLD_ORDER.PICK_TYPE_CD  IN  ( '1'  )
+                AND
+                JAF.GOLD_ORDER.GOLD_BAT_UPLOAD_DT  =  '18-02-2021 00:00:00'
+               )
+             GROUP BY
+               JAF.JAF_COMPANY_CTRL.COMPANY_CD,
+               JAF.GOLD_ORDER.GOLD_ORDER_ID,
+               JAF.GOLD_ORDER.GOLD_ORDER_ACT_TENDER_DT,
+               JAD.JAD_CUSTOMER.CUSTOMER_CD
+
+-------------------------------------------------------------------------------
+FINDINGS SECTION (1 finding)
+-------------------------------------------------------------------------------
+
+1- Index Finding (see explain plans section below)
+--------------------------------------------------
+  The execution plan of this statement can be improved by creating one or more
+  indices.
+
+  Recommendation (estimated benefit: 94.99%)
+  ------------------------------------------
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index JAF.IDX$$_520090003 on JAF.GOLD_ORDER("GOLD_BAT_UPLOAD_DT","PI
+    CK_TYPE_CD","COMPANY_CD","GOLD_ORDER_STATUS_NBR","LOAD_DTTM");
+
+  - Consider running the Access Advisor to improve the physical schema design
+    or creating the recommended index.
+    create index JAF.IDX$$_520090008 on JAF.GOLD_ORDER("GOLD_BAT_UPLOAD_DT","CI
+    R_CD","PICK_TYPE_CD","COMPANY_CD","GOLD_ORDER_STATUS_NBR","LOAD_DTTM");
+
+  Rationale
+  ---------
+    Creating the recommended indices significantly improves the execution plan
+    of this statement. However, it might be preferable to run "Access Advisor"
+    using a representative SQL workload as opposed to a single statement. This
+    will allow to get comprehensive index recommendations which takes into
+    account index maintenance overhead and additional space consumption.
+
+-------------------------------------------------------------------------------
+ERRORS SECTION
+-------------------------------------------------------------------------------
+- The current operation was interrupted because it timed out.
+
+-------------------------------------------------------------------------------
+EXPLAIN PLANS SECTION
+-------------------------------------------------------------------------------
+
+1- Original
+-----------
+Plan hash value: 1270396973
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                            | Name           				| Rows  | Bytes | Cost (%CPU)| Time     | Pstart| Pstop |
+----------------------------------------------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                                     |           					|   192 | 22848 | 31194   (2)| 00:00:05 |       |       |
+|   1 |  HASH GROUP BY                                       |           					|   192 | 22848 | 31194   (2)| 00:00:05 |       |       |
+|   2 |   VIEW                                               | VW_TE_42           			|    21 |  3024 | 31193   (2)| 00:00:05 |       |       |
+|   3 |    UNION-ALL                                         |           					|       |       |            |          |       |       |
+|   4 |     TEMP TABLE TRANSFORMATION                        |           					|       |       |            |          |       |       |
+|   5 |      LOAD AS SELECT (CURSOR DURATION MEMORY)         | SYS_TEMP_0FD9D7123_32F91A99	|       |       |            |          |       |       |
+|*  6 |       HASH JOIN                                      |           					|   140 | 20860 | 25073   (1)| 00:00:04 |       |       |
+|   7 |        NESTED LOOPS                                  |           					|    23 |  1495 |     2   (0)| 00:00:01 |       |       |
+|*  8 |         INDEX UNIQUE SCAN                            | PK_JAF_COMPANY_CTRL         	|     1 |     3 |     1   (0)| 00:00:01 |       |       |
+|*  9 |         VIEW                                         | VW_GBF_10           			|    23 |  1426 |     1   (0)| 00:00:01 |       |       |
+|  10 |          SORT GROUP BY                               |           					|    23 |   253 |     1   (0)| 00:00:01 |       |       |
+|* 11 |           INDEX RANGE SCAN                           | PK_JAD_CUSTOMER           	|   190 |  2090 |     1   (0)| 00:00:01 |       |       |
+|  12 |        PARTITION COMBINED ITERATOR                   |           					| 24163 |  1982K| 25071   (1)| 00:00:04 |   KEY |   KEY |
+|* 13 |         TABLE ACCESS BY LOCAL INDEX ROWID BATCHED    | GOLD_ORDER           		| 24163 |  1982K| 25071   (1)| 00:00:04 |   KEY |   KEY |
+|  14 |          BITMAP CONVERSION TO ROWIDS                 |           					|       |       |            |          |       |       |
+|* 15 |           BITMAP INDEX RANGE SCAN                    | B26_GOLD_ORDER           	|       |       |            |          |   KEY |   KEY |
+|  16 |      NESTED LOOPS                                    |           					|     1 |    98 |    22   (5)| 00:00:01 |       |       |
+|  17 |       NESTED LOOPS                                   |           					|     1 |    98 |    22   (5)| 00:00:01 |       |       |
+|* 18 |        TABLE ACCESS FULL                             | SYS_TEMP_0FD9D7123_32F91A99 	|     1 |    70 |     3   (0)| 00:00:01 |       |       |
+|  19 |        PARTITION LIST ITERATOR                       |           					|       |       |            |          |   KEY |   KEY |
+|  20 |         BITMAP CONVERSION TO ROWIDS                  |           					|       |       |            |          |       |       |
+|  21 |          BITMAP AND                                  |           					|       |       |            |          |       |       |
+|  22 |           BITMAP CONVERSION FROM ROWIDS              |           					|       |       |            |          |       |       |
+|* 23 |            INDEX RANGE SCAN                          | PK_HES_NA_ITEM_N           	|       |       |     1   (0)| 00:00:01 |   KEY |   KEY |
+|  24 |           BITMAP MERGE                               |          					|       |       |            |          |       |       |
+|  25 |            BITMAP KEY ITERATION                      |          					|       |       |            |          |       |       |
+|  26 |             BUFFER SORT                              |          					|       |       |            |          |       |       |
+|  27 |              TABLE ACCESS FULL                       | SYS_TEMP_0FD9D7123_32F91A99 	|   140 |  1960 |     3   (0)| 00:00:01 |       |       |
+|  28 |             BITMAP CONVERSION FROM ROWIDS            |           					|       |       |            |          |       |       |
+|* 29 |              INDEX RANGE SCAN                        | I01_HES_NA_ITEM_N           	|       |       |     1   (0)| 00:00:01 |   KEY |   KEY |
+|  30 |       TABLE ACCESS BY LOCAL INDEX ROWID              | HES_NA_ITEM           		|     1 |    28 |    22   (5)| 00:00:01 |     1 |     1 |
+|  31 |     NESTED LOOPS                                     |           					|     2 |   294 |     7   (0)| 00:00:01 |       |       |
+|* 32 |      INDEX UNIQUE SCAN                               | PK_JAF_COMPANY_CTRL         	|     1 |     3 |     1   (0)| 00:00:01 |       |       |
+|  33 |      VIEW                                            | VW_JF_SET$8D3C3878          	|     2 |   288 |     6   (0)| 00:00:01 |       |       |
+|  34 |       UNION-ALL                                      |           					|       |       |            |
+
+
+SQL>
+
+
+create index JAF.IDX$$_520090003 on JAF.GOLD_ORDER("GOLD_BAT_UPLOAD_DT","PICK_TYPE_CD","COMPANY_CD","GOLD_ORDER_STATUS_NBR","LOAD_DTTM");
+create index JAF.IDX$$_520090008 on JAF.GOLD_ORDER("GOLD_BAT_UPLOAD_DT","CIR_CD","PICK_TYPE_CD","COMPANY_CD","GOLD_ORDER_STATUS_NBR","LOAD_DTTM");
